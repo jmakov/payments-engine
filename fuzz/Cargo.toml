@@ -1,0 +1,48 @@
+[package]
+name = "payments-engine-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+description = "cargo-fuzz targets for payments-engine; run with `cargo +nightly fuzz run <target>`."
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+# Generates typed input for the transaction sequence target.
+arbitrary = { version = "1", features = ["derive"] }
+# Reads arbitrary CSV records through the same library as the application.
+csv = "1.4.0"
+# libFuzzer bindings used by cargo-fuzz.
+libfuzzer-sys = "0.4.13"
+payments-engine = { path = ".." }
+# Parses the report back to check `total == available + held` exactly.
+rust_decimal = { version = "1.43.0", default-features = false, features = ["std"] }
+
+[[bin]]
+name = "run_csv"
+path = "fuzz_targets/run_csv.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "amount_text"
+path = "fuzz_targets/amount_text.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "parse_csv"
+path = "fuzz_targets/parse_csv.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "transaction_sequence"
+path = "fuzz_targets/transaction_sequence.rs"
+test = false
+doc = false
+bench = false
