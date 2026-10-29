@@ -1,0 +1,65 @@
+[package]
+name = "payments-engine"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99.1"
+description = "Toy payments engine: streams a transaction CSV and prints final client balances."
+publish = false
+
+[dependencies]
+# CSV reader/writer; streams records one at a time with an internal buffer.
+csv = "1.4.0"
+# Fast seeded hasher for the integer-keyed account and deposit maps (see `engine::Map`).
+foldhash = "0.2.0"
+# Application-level errors with context chains (only used at I/O boundaries).
+eyre = "0.6.14"
+# Exact decimal parsing at the input boundary; Amount enforces the domain rules.
+rust_decimal = { version = "1.43.0", default-features = false, features = ["std"] }
+# `Money` implements `serde::Serialize` so the csv writer can print it.
+serde = { version = "1.0.229", features = ["derive"] }
+# Derives `Display` and `std::error::Error` for the typed domain errors.
+thiserror = "2.0.21"
+# Diagnostics (skipped rows, rejected transactions) go to stderr via `tracing`.
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+# Standard RUST_LOG filtering and stderr formatting.
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["env-filter", "fmt", "std"] }
+clap = { version = "4.6.7", features = ["derive"] }
+rtrb = "0.4.1"
+
+[dev-dependencies]
+# Property tests (tests/properties.rs); `std` only, because forking and timeouts are not needed.
+proptest = { version = "1.11", default-features = false, features = ["std"] }
+# Temporary input paths for CLI tests.
+tempfile = "3"
+
+[lints.rust]
+missing_docs = "warn"
+unsafe_code = "forbid"
+unsafe_op_in_unsafe_fn = "deny"
+unused_must_use = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+# Every panic site must state its invariant (`expect`); tests are exempt via clippy.toml.
+unwrap_used = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+# stdout carries only the account report; diagnostics go through `tracing` to stderr.
+print_stdout = "deny"
+print_stderr = "warn"
+wildcard_imports = "deny"
+allow_attributes_without_reason = "deny"
+allow_attributes = "warn"
+float_cmp = "deny"
+wildcard_enum_match_arm = "warn"
+missing_docs_in_private_items = "warn"
+redundant_clone = "warn"
+large_types_passed_by_value = "warn"
+trivially_copy_pass_by_ref = "warn"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+panic = "abort"

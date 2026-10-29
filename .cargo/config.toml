@@ -1,0 +1,7 @@
+# Compile for the CPU of the machine running the build, so the optimizer may use every
+# instruction set extension it has. The binary is built where it runs (`cargo run --release`);
+# a binary copied to an older CPU can fail with an illegal instruction, so rebuild there.
+# Set per target rather than under `[build]`: tools that pass their own `--config target...`
+# settings, such as cargo-pgo, drop `build.rustflags`.
+[target.'cfg(all())']
+rustflags = ["-C", "target-cpu=native"]
